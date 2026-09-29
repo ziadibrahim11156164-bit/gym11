@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Red Gym - محرك اللياقة والذكاء الاصطناعي</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+</head>
+<body>
+
+  <div class="app-screen">
+    <!-- خلفية نيون راقية -->
+    <div class="gym-bg-overlay"></div>
+
+    <!-- مجسم الدامبل الـ 3D الرئيسي -->
+    <div id="canvas-container"></div>
+
+    <!-- Header -->
+    <header class="header">
+      <h1 id="pageTitle">الرئيسية</h1>
+      <span class="header-icon">⚡</span>
+    </header>
+
+    <!-- Content -->
+    <main class="content">
+      
+      <!-- الصفحة 1: الرئيسية -->
+      <div id="page-home" class="page active">
+        <div class="card">
+          <h2>مرحباً بك في عالم القوة 🏋️‍♂️</h2>
+          <p>منصتك الاحترافية للتحول البدني الكامل. اكتشف برامج التدريب العالمية المقسمة بالأيام، واحسب سعراتك بدقة لتصميم مخططك الغذائي والتماريني الشامل.</p>
+          <button class="btn" onclick="goToTab('programs', 'أنظمة التمارين العالمية')">استكشف برامج التمارين 📋</button>
+        </div>
+      </div>
+
+      <!-- الصفحة 2: أنظمة التمارين المشهورة -->
+      <div id="page-programs" class="page">
+        <!-- قائمة الأنظمة -->
+        <div id="programsList">
+          <div class="card program-card" onclick="openProgram('arnold_split')">
+            <h3>🏆 نظام آرنولد سبليت (Arnold Split)</h3>
+            <p>البرنامج الأسطوري للتضخيم والتناسق (صدر وظهر / أكتاف وباي وتراي / أرجل).</p>
+          </div>
+          <div class="card program-card" onclick="openProgram('ppl')">
+            <h3>🔥 نظام PPL (Push / Pull / Legs)</h3>
+            <p>التقسيم الأكثر فاعلية للبناء العضلي (دفع / سحب / أرجل).</p>
+          </div>
+          <div class="card program-card" onclick="openProgram('upper_lower')">
+            <h3>⚡ نظام Upper / Lower</h3>
+            <p>توازن مثالي بين الجزء العلوي والسفلي لتطوير القوة والحجم العضلي.</p>
+          </div>
+          <div class="card program-card" onclick="openProgram('bro_split')">
+            <h3>💪 نظام Bro Split</h3>
+            <p>تركيز كامل واستهداف مباشر لعضلة واحدة في كل جلسة تدريبية.</p>
+          </div>
+          <div class="card program-card" onclick="openProgram('full_body')">
+            <h3>💥 نظام Full Body</h3>
+            <p>تحفيز الجسم كاملاً ثلاث مرات أسبوعياً لزيادة معدل الحرق واللياقة.</p>
+          </div>
+        </div>
+
+        <!-- تفاصيل النظام المختار بالأيام -->
+        <div id="programDetails" class="card" style="display: none;">
+          <button class="back-btn" onclick="closeProgramDetails()">➔ العودة للقائمة</button>
+          <h2 id="selectedProgramTitle" style="color: #ff3b30; margin-top: 10px;"></h2>
+          <p id="selectedProgramDesc"></p>
+          <div id="workoutDaysContainer"></div>
+        </div>
+      </div>
+
+      <!-- الصفحة 3: مدرب الـ AI وحاسبة السعرات -->
+      <div id="page-planner" class="page">
+        <div class="card">
+          <h2>🤖 المخطط الذكي للتحول البدني</h2>
+          <p>أدخل بياناتك الحيوية ليقوم المحرك الذكي باحتساب احتياجك الدقيق وتوليد برنامج غذائي وتدريبي متكامل ومخصص لك:</p>
+
+          <div class="field-group">
+            <div class="field">
+              <label>الوزن (كجم)</label>
+              <input type="number" id="userWeight" placeholder="75">
+            </div>
+            <div class="field">
+              <label>الطول (سم)</label>
+              <input type="number" id="userHeight" placeholder="175">
+            </div>
+          </div>
+
+          <div class="field-group">
+            <div class="field">
+              <label>السن</label>
+              <input type="number" id="userAge" placeholder="22">
+            </div>
+            <div class="field">
+              <label>الهدف البدني</label>
+              <select id="userGoal" class="select-field">
+                <option value="lose">حرق الدهون والتنشيف الصارم</option>
+                <option value="maintain">الحفاظ على الوزن وزيادة اللياقة</option>
+                <option value="gain">البناء العضلي والتضخيم الصافي</option>
+              </select>
+            </div>
+          </div>
+
+          <button class="btn" onclick="generateAIPlan()">توليد الخطة المتكاملة ⚡</button>
+        </div>
+
+        <!-- لودر التحميل -->
+        <div id="aiLoader" class="card ai-loading" style="display: none;">
+          <div class="spinner"></div>
+          <p>جاري صياغة الخطة الغذائية وجدول التمارين المخصص لك...</p>
+        </div>
+
+        <!-- نتيجة الـ AI -->
+        <div class="card" id="planResult" style="display: none;">
+          <h3 class="logs-title" style="color: #ff3b30;">🎯 المخطط الشامل المخصص لك:</h3>
+          
+          <div class="stats-row">
+            <div class="stat-item">
+              <span>السعرات</span>
+              <strong id="resCalories">0</strong>
+            </div>
+            <div class="stat-item">
+              <span>بروتين</span>
+              <strong id="resProtein">0g</strong>
+            </div>
+            <div class="stat-item">
+              <span>كاربس</span>
+              <strong id="resCarbs">0g</strong>
+            </div>
+            <div class="stat-item">
+              <span>دهون</span>
+              <strong id="resFats">0g</strong>
+            </div>
+          </div>
+
+          <div class="ai-section">
+            <h4>🥗 البرنامج الغذائي اليومي المتكامل:</h4>
+            <div id="resDiet" class="ai-content-box"></div>
+          </div>
+
+          <div class="ai-section">
+            <h4>🏋️‍♂️ الخطة التدريبية الأسبوعية الشاملة:</h4>
+            <div id="resWorkout" class="ai-content-box"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- الصفحة 4: سجل الأوزان والتمارين -->
+      <div id="page-tracker" class="page">
+        <div class="card">
+          <h2>تسجيل أوزان التمارين 📝</h2>
+          <p>دون أوزانك وجلساتك اليومية لمتابعة التطور والحفظ التلقائي على جهازك:</p>
+          <div class="field">
+            <label>اسم التمرين</label>
+            <input type="text" id="exName" placeholder="مثال: Bench Press">
+          </div>
+          <div class="field">
+            <label>الوزن (كجم)</label>
+            <input type="number" id="exWeight" placeholder="80">
+          </div>
+          <button class="btn" onclick="addExercise()">حفظ في السجل 💾</button>
+        </div>
+
+        <div class="card">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+            <h3 class="logs-title" style="margin:0;">السجل المحفوظ:</h3>
+            <button onclick="clearLogs()" style="background:none; border:none; color:#ff3b30; font-size:11px; cursor:pointer;">مسح السجل</button>
+          </div>
+          <div id="logsList">
+            <p class="empty-msg">لا توجد تمارين مسجلة حتى الآن.</p>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- الشريط السفلي -->
+    <nav class="bottom-nav">
+      <button class="nav-btn active" id="btn-home" onclick="goToTab('home', 'الرئيسية')">
+        <span class="icon">🏠</span>
+        <span>الرئيسية</span>
+      </button>
+      <button class="nav-btn" id="btn-programs" onclick="goToTab('programs', 'أنظمة التمارين')">
+        <span class="icon">📋</span>
+        <span>الأنظمة</span>
+      </button>
+      <button class="nav-btn" id="btn-planner" onclick="goToTab('planner', 'حساب السعرات والبرنامج')">
+        <span class="icon">🤖</span>
+        <span>السعرات والبرنامج</span>
+      </button>
+      <button class="nav-btn" id="btn-tracker" onclick="goToTab('tracker', 'سجل الأوزان')">
+        <span class="icon">🏋️‍♂️</span>
+        <span>السجل</span>
+      </button>
+    </nav>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
